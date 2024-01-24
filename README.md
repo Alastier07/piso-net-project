@@ -1,4 +1,4 @@
-# Peso Set - Arduino Powered
+# Piso Set - Arduino Powered
 
 Welcome to the Peso Set project! This simple yet powerful system allows you to handle peso transactions using Arduino technology.
 
