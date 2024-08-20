@@ -13,8 +13,9 @@
 TM1637Display display_a = TM1637Display(CLK_A, DIO_A);
 TM1637Display display_b = TM1637Display(CLK_B, DIO_B);
 
-long value = 1200000; //1200000 // milliseconds (20 mins)
-int loop_delay = 0; // milliseconds
+long value = 1800000; // milliseconds (30 mins)
+// long value = 1500000; // 25 mins
+long loop_delay = 0; // 0.475 milliseconds
 unsigned long time_elapse_start;
 unsigned long time_elapse_end;
 
@@ -28,30 +29,63 @@ long b_time = 0; // milliseconds
 int b_sec = 0;
 int b_min = 0;
 
+long start_a = 0;
+long end_a = 0;
+
+long start_b = 0;
+long end_b = 0;
+
 void setup() {
   Serial.begin(9600);
   // PC A
   pinMode(SENSOR_A, INPUT_PULLUP);
   pinMode(RELAY_A, OUTPUT);   
+  digitalWrite(RELAY_A, LOW);
   display_a.clear();
   display_a.setBrightness(5);
   // PC B
   pinMode(SENSOR_B, INPUT_PULLUP);
   pinMode(RELAY_B, OUTPUT);   
+  digitalWrite(RELAY_B, LOW);
   display_b.clear();
   display_b.setBrightness(5);
 }
 
 void loop() {
   time_elapse_start = millis();
+  
+  int sensor_a_status = 0;
+  int sensor_b_status = 0;
 
-  // Sensor Que
-  a_time = sensor_que(digitalRead(SENSOR_A), a_time);
-  b_time = sensor_que(digitalRead(SENSOR_B), b_time);
+  // Sensor A Trigger
+  sensor_a_status = sensor_trigger(digitalRead(SENSOR_A));
+  if(sensor_a_status == 1){
+    end_a = millis();
+    if((end_a - start_a) < 100){
+      sensor_a_status = 0;
+    }
+    start_a = millis();
+    end_a = 0; 
+  }
+  a_time = sensor_que(sensor_a_status, a_time); // Que
+  sensor_a_status = 0; // Reset
+
+  // Sensor B Trigger
+  sensor_b_status = sensor_trigger(digitalRead(SENSOR_B));
+  if(sensor_b_status == 1){
+    end_b = millis();
+    if((end_b - start_b) < 100){
+      sensor_b_status = 0;
+    }
+    start_b = millis();
+    end_b = 0; 
+  }
+  b_time = sensor_que(sensor_b_status, b_time); // Que
+  sensor_b_status = 0; // Reset
 
   // On/Off
-  digitalWrite(RELAY_A, a_time <= 0);
-  digitalWrite(RELAY_B, b_time <= 0);
+  digitalWrite(RELAY_A, (a_time <= 0) ? HIGH : LOW);
+  digitalWrite(RELAY_B, (b_time <= 0) ? HIGH : LOW);
 
   // Convertion Process
   a_sec = get_secs_display(a_time);
@@ -70,12 +104,36 @@ void loop() {
     b_min = convert_to_hour(b_min, b_sec);
   }
 
+  delay(loop_delay);
+
   // Display A
   display_time(display_a, a_min, a_sec);
 
-  // Sensor Que
-  a_time = sensor_que(digitalRead(SENSOR_A), a_time);
-  b_time = sensor_que(digitalRead(SENSOR_B), b_time);
+  // Sensor A Trigger
+  sensor_a_status = sensor_trigger(digitalRead(SENSOR_A));
+  if(sensor_a_status == 1){
+    end_a = millis();
+    if((end_a - start_a) < 100){
+      sensor_a_status = 0;
+    }
+    start_a = millis();
+    end_a = 0; 
+  }
+  a_time = sensor_que(sensor_a_status, a_time); // Que
+  sensor_a_status = 0; // Reset
+
+  // Sensor B Trigger
+  sensor_b_status = sensor_trigger(digitalRead(SENSOR_B));
+  if(sensor_b_status == 1){
+    end_b = millis();
+    if((end_b - start_b) < 100){
+      sensor_b_status = 0;
+    }
+    start_b = millis();
+    end_b = 0; 
+  }
+  b_time = sensor_que(sensor_b_status, b_time); // Que
+  sensor_b_status = 0; // Reset
 
   // Display B
   display_time(display_b, b_min, b_sec);
@@ -91,19 +149,28 @@ void loop() {
     b_time = time_remaining(b_time, loop_delay, time_elapse_end, time_elapse_start);
   }
 
-  Serial.println(time_elapse_end - time_elapse_start); // 64 to 65
+  // Serial.println(time_elapse_end - time_elapse_start); // 64 to 65
   delay(loop_delay);
 }
 
 // #Helper Functions
 long sensor_que(int sensor, long time){
-   if (sensor == HIGH) {
-    sensor = LOW;
-    return time + value;
+  //  if (sensor == HIGH) {
+   if (sensor == 1) {
+    // sensor = LOW;
+      return time + value;
     // Serial.println(a_time);
   }
 
   return time;
+}
+
+int sensor_trigger(int sensor){
+   if (sensor == HIGH) {
+    return 1;
+  } else{
+    return 0;
+  }
 }
 
 int get_secs_display(long mil_time) {
