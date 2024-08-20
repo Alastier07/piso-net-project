@@ -1,6 +1,6 @@
-# Piso Set - Arduino Powered
+# Piso Net - Arduino Powered
 
-Welcome to the Peso Set project! This simple yet powerful system allows you to handle peso transactions using Arduino technology.
+Welcome to the Peso Net project! This simple yet powerful system allows you to handle peso transactions using Arduino technology.
 
 ## Features
 
@@ -14,7 +14,11 @@ Welcome to the Peso Set project! This simple yet powerful system allows you to h
 
 - Arduino board (Nano in my case)
 - 4 digit 7 segment display 
-- [To be followed]
+- 5 pesos coin slot (Allan Brand)
+- 5v relay
+- 12v power supply
+- 5v power supply
+- led indicator(optional)
 
 ### Setup
 
