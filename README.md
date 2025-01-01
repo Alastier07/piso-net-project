@@ -24,3 +24,5 @@ Welcome to the Piso Net project! This simple yet powerful system allows you to h
 1. Clone this repository to your Arduino development environment.
 2. Connect your Arduino board and upload the code.
 3. [To be followed]
+
+# HAPPY NEW YEAR EVERYONE!
