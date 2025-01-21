@@ -65,9 +65,6 @@ void setup() {
 
 void loop() {
   time_elapse_start = millis();
-  
-  int sensor_a_status = 0;
-  int sensor_b_status = 0;
 
   // Sensor A Trigger
   if(impulsACount >= 5){
