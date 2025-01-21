@@ -1,14 +1,16 @@
 #include <TM1637Display.h>
 
-#define CLK_A 2
-#define DIO_A 3
-#define SENSOR_A 4
-#define RELAY_A 5
+const int coinSlotA = 2;
+#define RELAY_A 5 // Need NPN transistor for 12v relay
+#define CLK_A 6
+#define DIO_A 7
 
-#define CLK_B 9
-#define DIO_B 10
-#define SENSOR_B 11
-#define RELAY_B 12
+
+const int coinSlotB = 3;
+#define RELAY_B 10
+#define CLK_B 11
+#define DIO_B 12
+
 
 TM1637Display display_a = TM1637Display(CLK_A, DIO_A);
 TM1637Display display_b = TM1637Display(CLK_B, DIO_B);
@@ -29,34 +31,29 @@ long b_time = 0; // milliseconds
 int b_sec = 0;
 int b_min = 0;
 
-// long start_a = 0;
-// long end_a = 0;
+volatile int coinsA = 0;
+volatile int coinsB = 0;
 
-// long start_b = 0;
-// long end_b = 0;
-int impulsACount=0;
-int impulsBCount=0;
-
-void incomingAImpuls() {
-  impulsACount++;
+void coinSlotAInterrupt() {
+  coinsA++;
 }
 
-void incomingBImpuls(){
-  impulsBCount++;
+void coinSlotBInterrupt(){
+  coinsB++;
 }
 
 void setup() {
   Serial.begin(9600);
   // PC A
-  pinMode(SENSOR_A, INPUT_PULLUP);
-  attachInterrupt(0, incomingAImpuls, FALLING);
+  pinMode(coinSlotA, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(coinSlotA), coinSlotAInterrupt, FALLING);
   pinMode(RELAY_A, OUTPUT);   
   digitalWrite(RELAY_A, LOW);
   display_a.clear();
   display_a.setBrightness(5);
   // PC B
-  pinMode(SENSOR_B, INPUT_PULLUP);
-  attachInterrupt(0, incomingBImpuls, FALLING);
+  pinMode(coinSlotB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(coinSlotB), coinSlotBInterrupt, FALLING);
   pinMode(RELAY_B, OUTPUT);   
   digitalWrite(RELAY_B, LOW);
   display_b.clear();
@@ -67,14 +64,14 @@ void loop() {
   time_elapse_start = millis();
 
   // Sensor A Trigger
-  if(impulsACount >= 5){
+  if(coinsA >= 5){
     a_time = sensor_que(a_time); // Que
-    impulsACount = impulsACount - 5;
+    coinsA = coinsA - 5;
   }
   // Sensor B Trigger
-  if(impulsBCount >= 5){
+  if(coinsB >= 5){
     b_time = sensor_que(b_time); // Que
-    impulsBCount = impulsBCount - 5;
+    coinsB = coinsB - 5;
   }
 
   // On/Off
@@ -97,8 +94,6 @@ void loop() {
     b_sec = convert_to_min(b_min);
     b_min = convert_to_hour(b_min, b_sec);
   }
-
-  delay(loop_delay);
 
   // Display A
   display_time(display_a, a_min, a_sec);
