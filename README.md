@@ -1,11 +1,10 @@
 # Piso Net - Arduino Powered
 
-Welcome to the Peso Net project! This simple yet powerful system allows you to handle peso transactions using Arduino technology.
+Welcome to the Piso Net project! This simple yet powerful system allows you to handle the time for your Internet Cafe computers using Arduino technology.
 
 ## Features
 
 - **Arduino-Powered:** Leverage the capabilities of Arduino for a reliable and efficient platform.
-- **Seamless Transactions:** Experience hassle-free peso transactions with a straightforward setup.
 - **User-Friendly:** Designed with simplicity in mind, making it easy for anyone to use.
 
 ## Getting Started
@@ -25,3 +24,5 @@ Welcome to the Peso Net project! This simple yet powerful system allows you to h
 1. Clone this repository to your Arduino development environment.
 2. Connect your Arduino board and upload the code.
 3. [To be followed]
+
+# HAPPY NEW YEAR EVERYONE!
