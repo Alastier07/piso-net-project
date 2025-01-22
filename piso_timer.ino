@@ -1,12 +1,15 @@
 #include <TM1637Display.h>
 
 const int coinSlotA = 2;
+const int ledA = 4;
+int ledAState = LOW;
 #define RELAY_A 5 // Need NPN transistor for 12v relay
 #define CLK_A 6
 #define DIO_A 7
 
-
 const int coinSlotB = 3;
+const int ledB = 9;
+int ledBState = LOW;
 #define RELAY_B 10
 #define CLK_B 11
 #define DIO_B 12
@@ -17,7 +20,7 @@ TM1637Display display_b = TM1637Display(CLK_B, DIO_B);
 
 long value = 1800000; // milliseconds (30 mins)
 // long value = 1500000; // 25 mins
-long loop_delay = 500; // 0.475 milliseconds
+long loop_delay = 200; // 0.475 milliseconds
 unsigned long time_elapse_start;
 unsigned long time_elapse_end;
 
@@ -46,6 +49,7 @@ void setup() {
   Serial.begin(9600);
   // PC A
   pinMode(coinSlotA, INPUT_PULLUP);
+  pinMode(ledA, OUTPUT);
   attachInterrupt(digitalPinToInterrupt(coinSlotA), coinSlotAInterrupt, FALLING);
   pinMode(RELAY_A, OUTPUT);   
   digitalWrite(RELAY_A, LOW);
@@ -53,6 +57,7 @@ void setup() {
   display_a.setBrightness(5);
   // PC B
   pinMode(coinSlotB, INPUT_PULLUP);
+  pinMode(ledB, OUTPUT);
   attachInterrupt(digitalPinToInterrupt(coinSlotB), coinSlotBInterrupt, FALLING);
   pinMode(RELAY_B, OUTPUT);   
   digitalWrite(RELAY_B, LOW);
@@ -73,6 +78,10 @@ void loop() {
     b_time = sensor_que(b_time); // Que
     coinsB = coinsB - 5;
   }
+
+  // Blink LED
+  blink_led(ledA, ledAState, a_time);
+  blink_led(ledB, ledBState, b_time);
 
   // On/Off
   digitalWrite(RELAY_A, (a_time <= 0) ? HIGH : LOW);
@@ -150,4 +159,20 @@ long time_remaining(long time, int delay, unsigned long end, unsigned long start
   }
 
   return final_time;
+}
+
+void blink_led(int ledPin, int ledState, long time){
+  if(time <= 30000 && time > 0){
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    digitalWrite(ledPin, ledState);
+  } else {
+    if(ledState == HIGH){
+      digitalWrite(ledPin, LOW);
+    }
+  }
 }
